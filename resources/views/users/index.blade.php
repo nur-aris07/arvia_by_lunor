@@ -11,34 +11,33 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
             <div class="relative">
-                <input id="search" type="text" placeholder="Cari user..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                <input id="search" type="text" placeholder="Cari user..." class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none"></i>
             </div>
-            <select id="filter-role" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <select id="filter-role" class="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
                 <option value="">Semua Role</option>
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
             </select>
         </div>
-        <a href="/users/add" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center space-x-2">
+        <a href="/users/add" class="px-3 py-2 bg-neutral-900 text-white rounded-xl hover:bg-neutral-800 transition flex items-center gap-2 shadow-sm">
             <i class="fas fa-plus"></i>
             <span>Tambah User</span>
         </a>
     </div>
 
     <!-- Users Table -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-white rounded-2xl border border-gray-200/70 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table id="table" class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
+                <thead class="bg-gray-50/70 border-b border-gray-200/70">
                     <tr>
-                        <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">user</th>
+                        <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
                         <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Kontak</th>
                         <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
-                        <th class="text-center py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                        <th class="text-center py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200"></tbody>
+                <tbody class="divide-y divide-gray-200/70"></tbody>
             </table>
         </div>
     </div>
@@ -58,7 +57,7 @@
         </div>
         <p class="text-gray-700 mb-6">Apakah Anda yakin ingin menghapus data ini? Semua data terkait akan ikut terhapus.</p>
         <div class="flex justify-end space-x-3">
-            <button onclick="closeDeleteModal()" id="deleteModalBatalBtn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            <button type="button" id="deleteModalBatalBtn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                 Batal
             </button>
             <form id="deleteForm" method="POST" class="inline">
@@ -81,7 +80,6 @@
             paging: true,
             info: true,
             lengthChange: false,
-            ordering: false,
             autoWidth: false,
             pageLength: 5,
             dom: 'rt<"dt-footer flex w-full items-center justify-between px-6 py-4 border-t border-gray-200"ip>',
@@ -93,9 +91,9 @@
                 }
             },
             columns: [
-                { data: 'user', name: 'user' },
-                { data: 'contact', name: 'contact' },
-                { data: 'role', name: 'role' },
+                { data: 'user', name: 'user', orderable: true },
+                { data: 'contact', name: 'contact', orderable: true },
+                { data: 'role', name: 'role', orderable: true, searchable: false },
                 { data: 'action', orderable: false, searchable: false },
             ],
             language: {
@@ -130,15 +128,32 @@
         });
     });
 
-function confirmDelete(userId) {
-    const modal = document.getElementById('deleteModal');
-    const form = document.getElementById('deleteForm');
-    form.action = `/admin/users/${userId}`;
-    modal.classList.remove('hidden');
-}
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteForm');
+        const batalBtn = document.getElementById('deleteModalBatalBtn');
 
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
-}
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.delete-btn');
+            if (!btn) return;
+
+            const userId = btn.dataset.id;
+
+            form.action = `/users/${userId}/delete`;
+            modal.classList.remove('hidden');
+        });
+
+        batalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            form.action = '';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                form.action = '';
+            }
+        });
+    });
 </script>
 @endsection

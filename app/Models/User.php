@@ -25,4 +25,8 @@ class User extends Authenticatable
     public function isAdmin(): bool {
         return $this->role === 'admin';
     }
+
+    public function getHashIdAttribute() :string {
+        return encrypt($this->id);
+    }
 }

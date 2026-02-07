@@ -17,4 +17,4 @@ Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::get('/users/temp', [UsersController::class, 'temp'])->name('users.index');
 Route::get('/templates', [TemplatesController::class, 'index']);
 Route::get('/invitations', [InvitationsController::class, 'index']);
-Route::get('/payments', [PaymentsController::class, 'index']);
+Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');

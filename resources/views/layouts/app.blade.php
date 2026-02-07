@@ -10,6 +10,61 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
+        html, body { height: 100%; }
+        body { overflow: hidden; }
+        main, nav { scrollbar-gutter: stable; }
+        nav, main { overscroll-behavior: contain; }
+        
+        .scroll-nice{
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148,163,184,.85) transparent;
+        }
+        .scroll-nice::-webkit-scrollbar{ width: 10px; height: 10px; }
+        .scroll-nice::-webkit-scrollbar-track{ background: transparent; }
+        .scroll-nice::-webkit-scrollbar-thumb{
+            background: rgba(148,163,184,.65);
+            border-radius: 999px;
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+        .scroll-nice::-webkit-scrollbar-thumb:hover{
+            background: rgba(100,116,139,.85);
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+        table.dataTable thead th {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        /* Netral sort */
+        table.dataTable thead th.sorting::after {
+            content: "⇅";
+            font-size: 10px;
+            color: #9ca3af; /* gray-400 */
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* asc */
+        table.dataTable thead th.sorting_asc::after {
+            content: "↑";
+            color: #9ca3af; /* neutral-600 */
+        }
+
+        /* desc */
+        table.dataTable thead th.sorting_desc::after {
+            content: "↓";
+            color: #9ca3af;
+        }
+
+        /* kolom non-orderable */
+        table.dataTable thead th.sorting_disabled::after {
+            display: none;
+        }
+
         /* wrapper paginate */
         .dataTables_paginate{
             display:flex !important;
@@ -34,7 +89,7 @@
             padding:0 !important;
             margin:0 !important;
             border-radius:.75rem;
-            border:1px solid #e5e7eb !important;
+            border:1px solid rgba(229,231,235,.8) !important;
             background:#fff !important;
             color:#111827 !important;
             line-height:1 !important;
@@ -48,14 +103,14 @@
 
         /* active */
         .dataTables_paginate .paginate_button.current{
-            background:#4f46e5 !important;
-            border-color:#4f46e5 !important;
+            background:#111827 !important;
+            border-color:#111827 !important;
             color:#fff !important;
         }
 
         /* hover */
         .dataTables_paginate .paginate_button:not(.disabled):not(.current):hover{
-            background:#f3f4f6 !important;
+            background:#f9fafb !important;
         }
 
         /* disabled */
@@ -68,55 +123,62 @@
 <body class="bg-gray-50">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gradient-to-b from-indigo-900 to-indigo-800 text-white flex-shrink-0" x-data="{ open: null }">
-            <div class="p-6 border-b border-indigo-700">
+        @php
+            $openKey =
+                request()->routeIs('users.*') ? 'users' :
+                (request()->routeIs('templates.*') ? 'templates' :
+                (request()->routeIs('invitations.*') ? 'invitations' : null));
+        @endphp
+        <aside class="flex flex-col w-64 bg-gradient-to-b from-neutral-900 to-neutral-700 text-white flex-shrink-0" x-data="{ open: @js($openKey) }">
+            <div class="p-6 border-b border-neutral-700">
                 <h1 class="text-2xl font-bold">Invitato</h1>
-                <p class="text-xs text-indigo-300 mt-1">Admin Panel</p>
+                <p class="text-xs text-neutral-300 mt-1">Admin Panel</p>
             </div>
             
-            <nav class="p-4 space-y-2 overflow-y-auto h-[calc(100vh-180px)]">
+            <nav class="p-4 space-y-2 overflow-y-auto flex-1 scroll-nice">
                 <!-- Dashboard -->
-                <a href="/dashboard" class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-700 transition {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-700' : '' }}">
+                <a href="/dashboard" class="flex items-center px-4 py-3 rounded-lg hover:bg-neutral-700 transition {{ request()->routeIs('admin.dashboard') ? 'bg-neutral-700' : '' }}">
                     <i class="fas fa-home w-5"></i>
                     <span class="ml-3">Dashboard</span>
                 </a>
 
                 <!-- User Management -->
                 <div>
-                    <button @click="open = open === 'users' ? null : 'users'" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-indigo-700 transition">
+                    <button @click="open = open === 'users' ? null : 'users'" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition hover:bg-white/10" :class="open === 'users' ? 'bg-white/10' : ''">
                         <div class="flex items-center">
                             <i class="fas fa-users w-5"></i>
                             <span class="ml-3">Users</span>
                         </div>
                         <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'users' ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open === 'users'" x-collapse class="ml-8 mt-2 space-y-1">
-                        <a href="/users" class="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-indigo-700' : '' }}">
-                            <i class="fas fa-list w-4 text-xs"></i>
-                            <span class="ml-3">Daftar User</span>
+                    <div x-show="open === 'users'" x-transition class="ml-4 mt-2 space-y-1">
+                        <a href="/users" class="group flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition text-neutral-100/80 hover:text-white hover:bg-white/10 {{ request()->routeIs('users.index') ? 'bg-white/15 text-white' : '' }}">
+                            {{-- <i class="fas fa-list w-4 text-xs"></i> --}}
+                            <span class="h-2 w-2 rounded-full bg-white/30 group-hover:bg-white/70 {{ request()->routeIs('users.index') ? 'bg-white' : '' }}"></span>
+                            <span>Daftar User</span>
                         </a>
-                        <a href="users/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm">
+                        <a href="users/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm">
                             <i class="fas fa-plus w-4 text-xs"></i>
-                            <span class="ml-3">Tambah User</span>
+                            <span>Tambah User</span>
                         </a>
                     </div>
                 </div>
 
                 <!-- Template Management -->
                 <div>
-                    <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-indigo-700 transition">
+                    <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-neutral-700 transition">
                         <div class="flex items-center">
                             <i class="fas fa-palette w-5"></i>
                             <span class="ml-3">Templates</span>
                         </div>
                         <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'templates' ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open === 'templates'" x-collapse class="ml-8 mt-2 space-y-1">
-                        <a href="/templates" class="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm {{ request()->routeIs('admin.templates.index') || request()->routeIs('admin.templates.edit') ? 'bg-indigo-700' : '' }}">
+                    <div x-show="open === 'templates'" x-transition class="ml-8 mt-2 space-y-1">
+                        <a href="/templates" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm {{ request()->routeIs('admin.templates.index') || request()->routeIs('admin.templates.edit') ? 'bg-neutral-700' : '' }}">
                             <i class="fas fa-list w-4 text-xs"></i>
                             <span class="ml-3">Daftar Template</span>
                         </a>
-                        <a href="/templates/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm">
+                        <a href="/templates/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm">
                             <i class="fas fa-plus w-4 text-xs"></i>
                             <span class="ml-3">Tambah Template</span>
                         </a>
@@ -125,19 +187,19 @@
 
                 <!-- Invitation Management -->
                 <div>
-                    <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-indigo-700 transition">
+                    <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-neutral-700 transition">
                         <div class="flex items-center">
                             <i class="fas fa-envelope-open-text w-5"></i>
                             <span class="ml-3">Undangan</span>
                         </div>
                         <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'invitations' ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open === 'invitations'" x-collapse class="ml-8 mt-2 space-y-1">
-                        <a href="/invitations" class="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm {{ request()->routeIs('admin.invitations.*') ? 'bg-indigo-700' : '' }}">
+                    <div x-show="open === 'invitations'" x-transition class="ml-8 mt-2 space-y-1">
+                        <a href="/invitations" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm {{ request()->routeIs('admin.invitations.*') ? 'bg-neutral-700' : '' }}">
                             <i class="fas fa-list w-4 text-xs"></i>
                             <span class="ml-3">Daftar Undangan</span>
                         </a>
-                        <a href="invitations/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm">
+                        <a href="invitations/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm">
                             <i class="fas fa-plus w-4 text-xs"></i>
                             <span class="ml-3">Buat Undangan</span>
                         </a>
@@ -145,33 +207,33 @@
                 </div>
 
                 <!-- Payment Management -->
-                <a href="/payments" class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-700 transition {{ request()->routeIs('admin.payments.*') ? 'bg-indigo-700' : '' }}">
+                <a href="/payments" class="flex items-center px-4 py-3 rounded-lg hover:bg-neutral-700 transition {{ request()->routeIs('payments.*') ? 'bg-white/15 text-white' : '' }}">
                     <i class="fas fa-money-bill-wave w-5"></i>
                     <span class="ml-3">Payments</span>
                 </a>
 
                 <!-- Reports -->
-                <a href="/reports" class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-700 transition {{ request()->routeIs('admin.reports.*') ? 'bg-indigo-700' : '' }}">
+                <a href="/reports" class="flex items-center px-4 py-3 rounded-lg hover:bg-neutral-700 transition {{ request()->routeIs('admin.reports.*') ? 'bg-neutral-700' : '' }}">
                     <i class="fas fa-chart-bar w-5"></i>
                     <span class="ml-3">Laporan</span>
                 </a>
             </nav>
 
             <!-- User Profile -->
-            <div class="absolute bottom-0 w-64 p-4 border-t border-indigo-700 bg-indigo-900">
+            <div class="p-4 border-t border-neutral-700 bg-neutral-900">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center">
                             <i class="fas fa-user"></i>
                         </div>
                         <div class="ml-3">
                             <p class="text-sm font-semibold">Superadmin</p>
-                            <p class="text-xs text-indigo-300">Admin</p>
+                            <p class="text-xs text-neutral-300">Admin</p>
                         </div>
                     </div>
                     <form action="/logout" method="POST">
                         @csrf
-                        <button type="submit" class="text-indigo-300 hover:text-white">
+                        <button type="submit" class="text-neutral-300 hover:text-white">
                             <i class="fas fa-sign-out-alt"></i>
                         </button>
                     </form>
@@ -182,9 +244,9 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
             <!-- Header -->
-            <header class="bg-white shadow-sm z-10">
+            <header class="bg-white border-b border-gray-200/70 z-10">
                 <div class="px-6 py-4 flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-gray-800">@yield('header')</h2>
+                    <h2 class="text-2xl font-semibold text-gray-900">@yield('header')</h2>
                     <div class="flex items-center space-x-4">
                         <button class="relative text-gray-600 hover:text-gray-800">
                             <i class="fas fa-bell text-xl"></i>
@@ -195,7 +257,7 @@
             </header>
 
             <!-- Content -->
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-6 scroll-nice bg-gray-50">
                 @if(session('success'))
                     <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
                         <div class="flex items-center">

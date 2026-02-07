@@ -29,11 +29,20 @@ class UsersController extends Controller
                 ->addColumn('user', function($user) {
                     return view('users.columns.user', compact('user'))->render();
                 })
+                ->orderColumn('user', function ($query, $order) {
+                    $query->orderBy('name', $order);
+                })
                 ->addColumn('contact', function($user) {
                     return view('users.columns.contact', compact('user'))->render();
                 })
+                ->orderColumn('contact', function ($query, $order) {
+                    $query->orderBy('email', $order);
+                })
                 ->addColumn('role', function($user) {
                     return view('users.columns.role', compact('user'))->render();
+                })
+                ->orderColumn('role', function ($query, $order) {
+                    $query->orderBy('role', $order);
                 })
                 ->addColumn('action', function($user) {
                     return view('users.columns.action', compact('user'))->render();
