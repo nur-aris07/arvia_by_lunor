@@ -11,7 +11,7 @@
                 <i class="fas fa-plus-circle"></i>
             </a>
         @endif --}}
-        @if($user->role === 'admin')
+        @if($user->role === 'user')
             <button type="button" class="delete-btn w-9 h-9 inline-flex items-center justify-center rounded-xl bg-gray-50 border border-gray-200/70 text-red-600 hover:bg-red-50 hover:border-red-200 transition" title="Hapus" data-id="{{ $user->hash_id }}">
                 <i class="fas fa-trash-alt"></i>
             </button>

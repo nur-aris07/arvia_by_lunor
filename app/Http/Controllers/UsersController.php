@@ -76,7 +76,6 @@ class UsersController extends Controller
                 ->with('error', 'Validasi gagal, silakan cek kembali input.')
                 ->withInput();
         }
-        dd($validator->valid());
         
         $user = User::create([
             'name'      => $request->name,
@@ -147,7 +146,7 @@ class UsersController extends Controller
 
     public function destroy($id) {
         try {
-            $user = User::where('id', decrypt($id))->firstOrfail();
+            $user = User::where('id', Crypt::decryptString($id))->firstOrfail();
             $user->delete();
             return back()->with('success', 'Berhasil Menghapus Data User');
         } catch (\Throwable $e) {

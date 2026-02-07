@@ -268,21 +268,21 @@
             const btnCloseModalEdit = document.getElementById('modalCloseEdit');
             const btnCancelModalEdit = document.getElementById('modalCancelEdit');
 
-            function openModal(modal) {
-                modal.classList.remove('hidden');
+            function openModal(m) {
+                m.classList.remove('hidden');
             }
-            function closeModal(modal) {
-                modal.classList.add('hidden');
+            function closeModal(m) {
+                m.classList.add('hidden');
                 // setLoading(false);
             }
 
-            btnCloseModalAdd.addEventListener('click', closeModal(modalAdd));
-            btnCancelModalAdd.addEventListener('click', closeModal(modalAdd));
-            btnCloseModalEdit.addEventListener('click', closeModal(modalEdit));
-            btnCancelModalEdit.addEventListener('click', closeModal(modalEdit));
+            btnCloseModalAdd.addEventListener('click', () => closeModal(modalAdd));
+            btnCancelModalAdd.addEventListener('click', () => closeModal(modalAdd));
+            btnCloseModalEdit.addEventListener('click', () => closeModal(modalEdit));
+            btnCancelModalEdit.addEventListener('click', () => closeModal(modalEdit));
             if (btnAdd) {
                 btnAdd.addEventListener('click', () => {
-                    openModal();
+                    openModal(modalAdd);
                 });
             }
             document.addEventListener('click', (e) => {
