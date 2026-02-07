@@ -379,7 +379,7 @@
         );
     };
     </script>
-    <div id="toast-session" data-type="{{ session('success') ? 'success' : (session('error') ? 'error' : '') }}" data-message="{{ session('success') ?? session('error') ?? '' }}" class="hidden"></div
+    <div id="toast-session" data-type="{{ session('success') ? 'success' : (session('error') ? 'error' : '') }}" data-message="{{ session('success') ?? session('error') ?? '' }}" class="hidden"></div>
     @stack('scripts')
 </body>
 </html>

@@ -3,7 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
@@ -53,17 +59,100 @@ class UsersController extends Controller
         return view('users.index');
     }
 
-    public function store() {}
+    public function store(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'name'      => ['required', 'string', 'max:100'],
+            'email'     => ['required', 'email', 'unique:users,email', 'max:150'],
+            'phone'     => ['nullable', 'string', 'max:20'],
+            'role'      => ['required', 'string', 'in:admin,user'],
+            'password'  => [
+                'required',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->max(15)
+            ],
+        ]);
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->with('error', 'Validasi gagal, silakan cek kembali input.')
+                ->withInput();
+        }
+        dd($validator->valid());
+        
+        $user = User::create([
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'phone'     => $request->phone,
+            'password'  => Hash::make($request->password),
+            'role'      => $request->role,
+        ]);
 
-    public function update() {}
+        if ($user) {
+            return back()->with('success', 'Berhasil Menambahkan User Baru');
+        } else {
+            return back()->with('error', 'Gagal Menambahkan User Baru');
+        }
+    }
+
+    public function update(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'    => ['required','string'],
+            'name'  => ['required','string','max:100'],
+            'email' => ['required','email','max:150'],
+            'phone' => ['nullable','string','max:20'],
+            'role'  => ['required','string'],
+        ]);
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->with('error', 'Validasi gagal, silakan cek kembali input.')
+                ->withInput();
+        }
+
+        try {
+            $userId = Crypt::decryptString($request->id);
+        } catch (DecryptException $e) {
+            return back()
+                ->with('error', 'ID user tidak valid.')
+                ->withInput();
+        }
+        $user = User::find($userId);
+        if (!$user) {
+            return back()
+                ->with('error', 'User tidak ditemukan.')
+                ->withInput();
+        }
+
+        $emailValidator = Validator::make($request->all(), [
+            'email' => [
+                Rule::unique('users','email')->ignore($userId),
+            ],
+        ]);
+        if ($emailValidator->fails()) {
+            return back()
+                ->withErrors($emailValidator)
+                ->with('error', 'Email sudah digunakan user lain.')
+                ->withInput();
+        }
+
+        $user->update([
+            'name'  => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'role'  => $request->role,
+        ]);
+
+        return back()->with('success', 'Data user berhasil diupdate.');
+
+    }
 
     public function destroy($id) {
-        return back()->with('success', 'Gagal Menghapus Data User');
-        // try {
-        //     $user = User::where('id', decrypt($id))->firstOrfail();
-
-        // } catch (\Throwable $e) {
-        // }
+        try {
+            $user = User::where('id', decrypt($id))->firstOrfail();
+            $user->delete();
+            return back()->with('success', 'Berhasil Menghapus Data User');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal Menghapus Data User');
+        }
         
     }
 
