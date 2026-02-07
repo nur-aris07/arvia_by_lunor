@@ -162,25 +162,10 @@
                 </div>
 
                 <!-- Template Management -->
-                <div>
-                    <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-neutral-700 transition">
-                        <div class="flex items-center">
-                            <i class="fas fa-palette w-5"></i>
-                            <span class="ml-3">Templates</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'templates' ? 'rotate-180' : ''"></i>
-                    </button>
-                    <div x-show="open === 'templates'" x-collapse class="ml-8 mt-2 space-y-1">
-                        <a href="/templates" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm {{ request()->routeIs('admin.templates.index') || request()->routeIs('admin.templates.edit') ? 'bg-neutral-700' : '' }}">
-                            <i class="fas fa-list w-4 text-xs"></i>
-                            <span class="ml-3">Daftar Template</span>
-                        </a>
-                        <a href="/templates/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm">
-                            <i class="fas fa-plus w-4 text-xs"></i>
-                            <span class="ml-3">Tambah Template</span>
-                        </a>
-                    </div>
-                </div>
+                <a href="/templates" class="flex items-center px-4 py-3 rounded-lg hover:bg-neutral-700 transition {{ request()->routeIs('templates.*') ? 'bg-white/15 text-white' : '' }}">
+                    <i class="fas fa-palette w-5"></i>
+                    <span class="ml-3">Templates</span>
+                </a>
 
                 <!-- Invitation Management -->
                 <div>
@@ -307,77 +292,75 @@
             </div>
         </template>
     </div>
-
-
     <script>
         document.addEventListener('alpine:init', () => {
-        Alpine.data('toastHub', () => ({
-            toasts: [],
+            Alpine.data('toastHub', () => ({
+                toasts: [],
 
-            init() {
-                window.addEventListener('toast:push', (e) => {
-                    const { type = 'success', message = '', duration = 3200 } = e.detail || {};
-                    this.push(type, message, duration);
-                });
+                init() {
+                    window.addEventListener('toast:push', (e) => {
+                        const { type = 'success', message = '', duration = 3200 } = e.detail || {};
+                        this.push(type, message, duration);
+                    });
 
-                const el = document.getElementById('toast-session');
-                if (el) {
-                    const type = el.dataset.type;
-                    const message = el.dataset.message;
-                    if (type && message) {
-                    this.push(type, message, 3200);
-                    el.dataset.type = '';
-                    el.dataset.message = '';
+                    const el = document.getElementById('toast-session');
+                    if (el) {
+                        const type = el.dataset.type;
+                        const message = el.dataset.message;
+                        if (type && message) {
+                        this.push(type, message, 3200);
+                        el.dataset.type = '';
+                        el.dataset.message = '';
+                        }
                     }
-                }
-            },
+                },
 
-            push(type, message, duration = 3200) {
-                const id = Date.now() + Math.random();
+                push(type, message, duration = 3200) {
+                    const id = Date.now() + Math.random();
 
-                const toast = {
-                    id,
-                    type,
-                    message,
-                    show: true,
-                    progress: 100,
-                };
+                    const toast = {
+                        id,
+                        type,
+                        message,
+                        show: true,
+                        progress: 100,
+                    };
 
-                this.toasts.unshift(toast);
-                if (this.toasts.length > 5) this.toasts.pop();
+                    this.toasts.unshift(toast);
+                    if (this.toasts.length > 5) this.toasts.pop();
 
-                const start = Date.now();
-                const timer = setInterval(() => {
-                    const elapsed = Date.now() - start;
-                    const pct = Math.max(0, 100 - (elapsed / duration) * 100);
+                    const start = Date.now();
+                    const timer = setInterval(() => {
+                        const elapsed = Date.now() - start;
+                        const pct = Math.max(0, 100 - (elapsed / duration) * 100);
+                        const t = this.toasts.find(x => x.id === id);
+                        if (t) t.progress = pct;
+
+                        if (elapsed >= duration) {
+                            clearInterval(timer);
+                            this.remove(id);
+                        }
+                    }, 100);
+                },
+
+                remove(id) {
                     const t = this.toasts.find(x => x.id === id);
-                    if (t) t.progress = pct;
+                    if (!t) return;
+                    t.show = false;
+                    setTimeout(() => {
+                        this.toasts = this.toasts.filter(x => x.id !== id);
+                    }, 160);
+                }
+            }));
+        });
 
-                    if (elapsed >= duration) {
-                        clearInterval(timer);
-                        this.remove(id);
-                    }
-                }, 100);
-            },
-
-            remove(id) {
-                const t = this.toasts.find(x => x.id === id);
-                if (!t) return;
-                t.show = false;
-                setTimeout(() => {
-                    this.toasts = this.toasts.filter(x => x.id !== id);
-                }, 160);
-            }
-        }));
-    });
-
-    window.toast = function (type, message, opts = {}) {
-        window.dispatchEvent(
-            new CustomEvent('toast:push', {
-                detail: { type, message, ...opts }
-            })
-        );
-    };
+        window.toast = function (type, message, opts = {}) {
+            window.dispatchEvent(
+                new CustomEvent('toast:push', {
+                    detail: { type, message, ...opts }
+                })
+            );
+        };
     </script>
     <div id="toast-session" data-type="{{ session('success') ? 'success' : (session('error') ? 'error' : '') }}" data-message="{{ session('success') ?? session('error') ?? '' }}" class="hidden"></div>
     @stack('scripts')

@@ -20,6 +20,11 @@ Route::post('/users/update', [UsersController::class, 'update'])->name('users.up
 Route::delete('/users/{id}/delete', [UsersController::class, 'destroy'])->name('users.delete');
 Route::get('/users/temp', [UsersController::class, 'temp'])->name('users.temp');
 
-Route::get('/templates', [TemplatesController::class, 'index']);
+Route::get('/templates', [TemplatesController::class, 'index'])->name('templates.index');
+Route::post('/templates/add', [TemplatesController::class, 'store'])->name('templates.add');
+Route::post('/templates/update', [TemplatesController::class, 'update'])->name('templates.update');
+Route::delete('/templates/{id}/delete', [TemplatesController::class, 'destroy'])->name('templates.delete');
+Route::get('/templates/temp', [TemplatesController::class, 'temp'])->name('templates.temp');
+
 Route::get('/invitations', [InvitationsController::class, 'index']);
 Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');

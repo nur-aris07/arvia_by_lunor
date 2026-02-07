@@ -58,28 +58,28 @@
             </div>
             <form id="modalForm" class="px-5 py-4" action="/users/add" method="POST">
                 @csrf
-                <div class="body-modal">
+                <div class="body-modal max-h-[60vh] overflow-y-auto pr-1 scroll-nice">
                     <input type="hidden" id="idAdd" name="id" value="" />
-                    <div>
+                    <div class="space-y-1.5">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
                         <input id="nameAdd" name="name" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none" placeholder="Nama user" required>
                     </div>
-                    <div>
+                    <div class="space-y-1.5">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input id="emailAdd" name="email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none" placeholder="email@domain.com" required>
                     </div>
-                    <div>
+                    <div class="space-y-1.5">
                         <label class="block text-sm font-medium text-gray-700 mb-1">No HP</label>
                         <input id="phoneAdd" name="phone" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none" placeholder="08xxxxxxxxxx">
                     </div>
-                    <div>
+                    <div class="space-y-1.5">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <select id="roleAdd" name="role" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <div>
+                    <div class="space-y-1.5">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <input id="passwordAdd" name="password" type="password" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none" placeholder="SemuaTeman098#$">
                     </div>
