@@ -8,7 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         html, body { height: 100%; }
         body { overflow: hidden; }
@@ -93,6 +94,7 @@
             background:#fff !important;
             color:#111827 !important;
             line-height:1 !important;
+            transition: background .15s ease, border-color .15s ease;
         }
 
         /* ikon prev/next */
@@ -151,15 +153,10 @@
                         </div>
                         <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'users' ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open === 'users'" x-transition class="ml-4 mt-2 space-y-1">
+                    <div x-show="open === 'users'" x-collapse class="ml-4 mt-2 space-y-1">
                         <a href="/users" class="group flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition text-neutral-100/80 hover:text-white hover:bg-white/10 {{ request()->routeIs('users.index') ? 'bg-white/15 text-white' : '' }}">
-                            {{-- <i class="fas fa-list w-4 text-xs"></i> --}}
                             <span class="h-2 w-2 rounded-full bg-white/30 group-hover:bg-white/70 {{ request()->routeIs('users.index') ? 'bg-white' : '' }}"></span>
                             <span>Daftar User</span>
-                        </a>
-                        <a href="users/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm">
-                            <i class="fas fa-plus w-4 text-xs"></i>
-                            <span>Tambah User</span>
                         </a>
                     </div>
                 </div>
@@ -173,7 +170,7 @@
                         </div>
                         <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'templates' ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open === 'templates'" x-transition class="ml-8 mt-2 space-y-1">
+                    <div x-show="open === 'templates'" x-collapse class="ml-8 mt-2 space-y-1">
                         <a href="/templates" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm {{ request()->routeIs('admin.templates.index') || request()->routeIs('admin.templates.edit') ? 'bg-neutral-700' : '' }}">
                             <i class="fas fa-list w-4 text-xs"></i>
                             <span class="ml-3">Daftar Template</span>
@@ -194,7 +191,7 @@
                         </div>
                         <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'invitations' ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open === 'invitations'" x-transition class="ml-8 mt-2 space-y-1">
+                    <div x-show="open === 'invitations'" x-collapse class="ml-8 mt-2 space-y-1">
                         <a href="/invitations" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm {{ request()->routeIs('admin.invitations.*') ? 'bg-neutral-700' : '' }}">
                             <i class="fas fa-list w-4 text-xs"></i>
                             <span class="ml-3">Daftar Undangan</span>
@@ -258,27 +255,131 @@
 
             <!-- Content -->
             <main class="flex-1 overflow-y-auto p-6 scroll-nice bg-gray-50">
-                @if(session('success'))
-                    <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
-                        <div class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-                            <p class="text-green-700">{{ session('success') }}</p>
-                        </div>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
-                            <p class="text-red-700">{{ session('error') }}</p>
-                        </div>
-                    </div>
-                @endif
-
                 @yield('content')
             </main>
         </div>
     </div>
+    <div x-data="toastHub()" class="fixed top-4 right-4 z-[9999] w-[340px] max-w-[calc(100vw-2rem)] space-y-2 pointer-events-none">
+        <template x-for="t in toasts" :key="t.id">
+            <div
+            x-show="t.show"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+            class="relative overflow-hidden rounded-2xl border bg-white shadow-lg pointer-events-auto"
+            :class="t.type === 'success' ? 'border-emerald-200' : 'border-red-200'"
+            >
+            <div class="relative">
+                <div class="flex items-start gap-3 pl-3 pr-2 py-2">
+                    <div class="mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center"
+                        :class="t.type === 'success'
+                            ? 'bg-emerald-50 text-emerald-600'
+                            : 'bg-red-50 text-red-600'">
+                        <i class="fas text-[13px]" :class="t.type === 'success' ? 'fa-check' : 'fa-times'"></i>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 leading-tight"
+                        x-text="t.type === 'success' ? 'Berhasil' : 'Gagal'"></p>
+                        <p class="text-sm text-gray-600 break-words leading-snug mt-0.5"
+                        x-text="t.message"></p>
+                    </div>
+
+                    <button
+                        class="h-8 w-8 rounded-xl flex items-center justify-center
+                            text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition"
+                        @click="remove(t.id)"
+                        aria-label="Close"
+                    >
+                        <i class="fas fa-xmark text-[14px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="h-1.5 bg-gray-100">
+                <div class="h-1.5"
+                    :class="t.type === 'success' ? 'bg-emerald-500/60' : 'bg-red-500/60'"
+                    :style="`width:${t.progress}%; transition: width 100ms linear;`"></div>
+            </div>
+            </div>
+        </template>
+    </div>
+
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+        Alpine.data('toastHub', () => ({
+            toasts: [],
+
+            init() {
+                window.addEventListener('toast:push', (e) => {
+                    const { type = 'success', message = '', duration = 3200 } = e.detail || {};
+                    this.push(type, message, duration);
+                });
+
+                const el = document.getElementById('toast-session');
+                if (el) {
+                    const type = el.dataset.type;
+                    const message = el.dataset.message;
+                    if (type && message) {
+                    this.push(type, message, 3200);
+                    el.dataset.type = '';
+                    el.dataset.message = '';
+                    }
+                }
+            },
+
+            push(type, message, duration = 3200) {
+                const id = Date.now() + Math.random();
+
+                const toast = {
+                    id,
+                    type,
+                    message,
+                    show: true,
+                    progress: 100,
+                };
+
+                this.toasts.unshift(toast);
+                if (this.toasts.length > 5) this.toasts.pop();
+
+                const start = Date.now();
+                const timer = setInterval(() => {
+                    const elapsed = Date.now() - start;
+                    const pct = Math.max(0, 100 - (elapsed / duration) * 100);
+                    const t = this.toasts.find(x => x.id === id);
+                    if (t) t.progress = pct;
+
+                    if (elapsed >= duration) {
+                        clearInterval(timer);
+                        this.remove(id);
+                    }
+                }, 100);
+            },
+
+            remove(id) {
+                const t = this.toasts.find(x => x.id === id);
+                if (!t) return;
+                t.show = false;
+                setTimeout(() => {
+                    this.toasts = this.toasts.filter(x => x.id !== id);
+                }, 160);
+            }
+        }));
+    });
+
+    window.toast = function (type, message, opts = {}) {
+        window.dispatchEvent(
+            new CustomEvent('toast:push', {
+                detail: { type, message, ...opts }
+            })
+        );
+    };
+    </script>
+    <div id="toast-session" data-type="{{ session('success') ? 'success' : (session('error') ? 'error' : '') }}" data-message="{{ session('success') ?? session('error') ?? '' }}" class="hidden"></div
+    @stack('scripts')
 </body>
 </html>

@@ -53,6 +53,20 @@ class UsersController extends Controller
         return view('users.index');
     }
 
+    public function store() {}
+
+    public function update() {}
+
+    public function destroy($id) {
+        return back()->with('success', 'Gagal Menghapus Data User');
+        // try {
+        //     $user = User::where('id', decrypt($id))->firstOrfail();
+
+        // } catch (\Throwable $e) {
+        // }
+        
+    }
+
     function temp() {
         $users = User::paginate(5);
         return view('users.temp', compact('users'));
