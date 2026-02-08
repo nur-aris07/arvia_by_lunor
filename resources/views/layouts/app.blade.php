@@ -10,6 +10,8 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <style>
         html, body { height: 100%; }
         body { overflow: hidden; }
@@ -120,6 +122,130 @@
             opacity:.5;
             cursor:not-allowed !important;
         }
+        /* === Tom Select: match modern semi-dark (content light) === */
+        .ts-wrapper { width: 100%; }
+
+        .ts-control{
+            border:1px solid rgba(229,231,235,.8) !important;
+            border-radius: .75rem !important;     /* rounded-xl */
+            padding: .60rem 1rem !important;      /* mirip py-2.5 px-4 */
+            min-height: 44px !important;
+            box-shadow: none !important;
+            background: #fff !important;
+        }
+        .ts-control input{
+            font-size: 14px !important;
+            color: #111827 !important;
+        }
+        .ts-control .item{
+            font-size: 14px !important;
+            color:#111827 !important;
+        }
+
+        /* focus ring neutral */
+        .ts-wrapper.focus .ts-control{
+            border-color: #d1d5db !important;
+            box-shadow: 0 0 0 4px rgba(229,231,235,.9) !important;
+        }
+
+        /* dropdown */
+        .ts-dropdown{
+            z-index: 10050 !important;
+            border-radius: .75rem !important;
+            border:1px solid rgba(229,231,235,.9) !important;
+            box-shadow: 0 10px 30px rgba(17,24,39,.10) !important;
+            overflow:hidden !important;
+        }
+        .ts-dropdown .ts-dropdown-input{
+            border: 1px solid rgba(229,231,235,.9) !important;
+            border-radius: .5rem !important;
+            padding: .45rem .65rem !important;
+            font-size: 14px !important;
+            color: #111827 !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .ts-dropdown .ts-dropdown-input:focus{
+            border-color: #d1d5db !important;
+            box-shadow: 0 0 0 2px rgba(229,231,235,.9) !important;
+        }
+        .ts-dropdown .ts-dropdown-input::placeholder{
+            color: #9ca3af !important;
+        }
+        .ts-dropdown .dropdown-input{
+            padding: .5rem !important;
+            border-bottom: 1px solid rgba(229,231,235,.7) !important;
+        }
+        .ts-dropdown .option{
+            padding:.6rem .9rem !important;
+            font-size: 14px !important;
+        }
+        .ts-dropdown .option.active{
+            background: rgba(17,24,39,.04) !important;
+        }
+        .ts-dropdown .option .ts-meta{
+            display:block;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        /* clear button (optional) */
+        .ts-control .clear-button{
+            opacity:.7;
+        }
+        .ts-control .clear-button:hover{
+            opacity:1;
+        }
+
+        /* disabled */
+        .ts-wrapper.disabled .ts-control{
+            background:#f9fafb !important;
+            color:#6b7280 !important;
+            cursor:not-allowed !important;
+        }
+
+        /* wrapper search bar di dropdown */
+.ts-dropdown .dropdown-input{
+  padding: .5rem !important;
+  border-bottom: 1px solid rgba(229,231,235,.7) !important;
+  background: #fff !important;
+}
+
+/* input search di dropdown: Tom Select bisa pakai beberapa class */
+.ts-dropdown input,
+.ts-dropdown .ts-input,
+.ts-dropdown input[type="text"],
+.ts-dropdown .dropdown-input > input {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+
+  border: 1px solid rgba(229,231,235,.9) !important;
+  border-radius: .5rem !important;
+  padding: .45rem .65rem !important;
+
+  outline: none !important;
+  box-shadow: none !important;
+  background: #fff !important;
+
+  font-size: 14px !important;
+  color: #111827 !important;
+}
+
+/* focus state */
+.ts-dropdown input:focus,
+.ts-dropdown .ts-input:focus,
+.ts-dropdown .dropdown-input > input:focus{
+  border-color: #d1d5db !important;
+  box-shadow: 0 0 0 2px rgba(229,231,235,.9) !important;
+}
+
+/* placeholder */
+.ts-dropdown input::placeholder,
+.ts-dropdown .ts-input::placeholder{
+  color: #9ca3af !important;
+}
+
     </style>
 </head>
 <body class="bg-gray-50">
@@ -168,25 +294,10 @@
                 </a>
 
                 <!-- Invitation Management -->
-                <div>
-                    <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-neutral-700 transition">
-                        <div class="flex items-center">
-                            <i class="fas fa-envelope-open-text w-5"></i>
-                            <span class="ml-3">Undangan</span>
-                        </div>
-                        <i class="fas fa-chevron-down text-sm transition-transform" :class="open === 'invitations' ? 'rotate-180' : ''"></i>
-                    </button>
-                    <div x-show="open === 'invitations'" x-collapse class="ml-8 mt-2 space-y-1">
-                        <a href="/invitations" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm {{ request()->routeIs('admin.invitations.*') ? 'bg-neutral-700' : '' }}">
-                            <i class="fas fa-list w-4 text-xs"></i>
-                            <span class="ml-3">Daftar Undangan</span>
-                        </a>
-                        <a href="invitations/add" class="flex items-center px-4 py-2 rounded-lg hover:bg-neutral-700 text-sm">
-                            <i class="fas fa-plus w-4 text-xs"></i>
-                            <span class="ml-3">Buat Undangan</span>
-                        </a>
-                    </div>
-                </div>
+                <a href="/invitations" class="flex items-center px-4 py-3 rounded-lg hover:bg-neutral-700 transition {{ request()->routeIs('invitations.*') ? 'bg-white/15 text-white' : '' }}">
+                    <i class="fas fa-envelope-open-text w-5"></i>
+                    <span class="ml-3">Undangan</span>
+                </a>
 
                 <!-- Payment Management -->
                 <a href="/payments" class="flex items-center px-4 py-3 rounded-lg hover:bg-neutral-700 transition {{ request()->routeIs('payments.*') ? 'bg-white/15 text-white' : '' }}">
