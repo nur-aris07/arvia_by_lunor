@@ -58,7 +58,7 @@
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
-            <form id="modalFormAdd" class="px-5 pb-3" action="/users/add" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
+            <form id="modalFormAdd" class="px-5 pb-3" action="/templates/add" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <div class="body-modal max-h-[60vh] overflow-y-auto pr-1 scroll-nice space-y-1.5">
                     <input type="hidden" id="idAdd" name="id" value="" />
@@ -68,7 +68,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                        <input id="slugAdd" name="slug" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed" placeholder="otomatis dari nama" disabled required>
+                        <input id="slugAdd" name="slug" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed" placeholder="otomatis dari nama" readonly required>
                         <p class="ml-3 mt-1 text-xs text-gray-500">Slug dibuat otomatis dari nama template.</p>
                     </div>
                     <div>
@@ -114,9 +114,9 @@
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
-            <form id="modalFormEdit" class="px-5 pb-3" action="/users/add" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
+            <form id="modalFormEdit" class="px-5 pb-3" action="/templates/update" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
-                <div class="body-modal max-h-[60vh] overflow-y-auto pr-1 scroll-nice space-y-1.5">
+                <div class="body-modal max-h-[60vh] overflow-y-auto px-1 py-2 scroll-nice space-y-1.5">
                     <input type="hidden" id="idEdit" name="id" value="" />
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
@@ -124,7 +124,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                        <input id="slugEdit" name="slug" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed" placeholder="otomatis dari nama" disabled required>
+                        <input id="slugEdit" name="slug" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed" placeholder="otomatis dari nama" readonly required>
                         <p class="ml-3 mt-1 text-xs text-gray-500">Slug dibuat otomatis dari nama template.</p>
                     </div>
                     <div>
@@ -143,6 +143,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <textarea id="descriptionEdit" name="description" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none min-h-[100px] resize-y" placeholder="Deskripsi singkat template..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="statusAdd" name="status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
+                            <option value="1">Active</option>
+                            <option value="0">Non Active</option>
+                        </select>
                     </div>
                 </div>
                 <div class="pt-2 flex items-center justify-end gap-2">
@@ -240,7 +247,7 @@
                 table.draw();
             }, 350));
 
-            $('#filter-role').on('change', function () {
+            $('#filter-status').on('change', function () {
                 table.draw();
             });
         });
@@ -256,7 +263,7 @@
 
                 const userId = btn.dataset.id;
 
-                form.action = `/users/${userId}/delete`;
+                form.action = `/templates/${userId}/delete`;
                 modal.classList.remove('hidden');
             });
 
@@ -305,7 +312,7 @@
                 const dataset = data.dataset;
                 Object.keys(dataset).forEach((key) => {
                     let value = dataset[key];
-                    
+
                     try {
                         value = JSON.parse(value);
                     } catch(error) {}
@@ -345,6 +352,32 @@
                 });
                 openModal(modalEdit);
             });
+
+            function generateSlug(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[\s\W-]+/g, '-') // spasi & simbol jadi -
+                    .replace(/^-+|-+$/g, ''); // hapus - di awal/akhir
+            }
+
+            const nameAdd  = document.getElementById('nameAdd');
+            const slugAdd  = document.getElementById('slugAdd');
+            const nameEdit = document.getElementById('nameEdit');
+            const slugEdit = document.getElementById('slugEdit');
+
+            if (nameAdd && slugAdd) {
+                nameAdd.addEventListener('input', function () {
+                    slugAdd.value = generateSlug(this.value);
+                });
+            }
+
+            if (nameEdit && slugEdit) {
+                nameEdit.addEventListener('input', function () {
+                    slugEdit.value = generateSlug(this.value);
+                });
+            }
         });
     </script>
 @endpush
