@@ -9,10 +9,24 @@
         </a>
 
         <a href="javascript:void(0)"
-           class="edit-btn w-9 h-9 inline-flex items-center justify-center rounded-xl
-                  bg-gray-50 border border-gray-200/70 text-amber-600
-                  hover:bg-amber-50 hover:border-amber-200 transition"
-           title="Edit">
+            class="edit-btn w-9 h-9 inline-flex items-center justify-center rounded-xl
+                    bg-gray-50 border border-gray-200/70 text-amber-600
+                    hover:bg-amber-50 hover:border-amber-200 transition"
+            data-id="{{ $invitation->id }}"
+            data-user='@json([
+                "id"    => $invitation->user->hash_id,
+                "label" => $invitation->user->name,
+                "meta"  => $invitation->user->email
+            ])'
+            data-template='@json([
+                "id"    => $invitation->template->hash_id,
+                "label" => $invitation->template->name ?? "-",
+                "meta"  => "-"
+            ])'
+            data-title="{{ $invitation->title }}"
+            data-slug="{{ $invitation->slug }}"
+            data-status="{{ $invitation->status }}"
+            title="Edit">
             <i class="fas fa-pencil-alt text-[14px]"></i>
         </a>
 

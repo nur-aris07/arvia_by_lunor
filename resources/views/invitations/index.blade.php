@@ -121,7 +121,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
-                        <select id="userAdd" name="user" class="ts-remote" data-lookup-url="{{ route('invitations.lookup') }}" data-type="users" data-placeholder="Cari user...">
+                        <select id="userAdd" name="user" class="ts-remote" data-lookup-url="{{ route('invitations.lookup') }}" data-type="users" data-placeholder="Cari user..." data-dropdown-title="Pilih User">
                             @isset($selectedUser)
                                 <option value="{{ $selectedUser->id }}" selected>{{ $selectedUser->name }} — {{ $selectedUser->email }}</option>
                             @endisset
@@ -149,6 +149,69 @@
         </div>
     </div>
 </div>
+<div id="modalEdit" class="hidden fixed inset-0 z-[9998]">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white shadow-xl border border-gray-200/70 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-200/70 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Edit @yield('context')</h3>
+                    <p class="text-sm text-gray-500">Perbarui data dengan benar.</p>
+                </div>
+                <button type="button" id="modalCloseEdit" class="h-9 w-9 rounded-xl inline-flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="modalFormEdit" action="/invitations/update" method="POST" class="px-5 pb-3 flex flex-col flex-1 overflow-hidden">
+                @csrf
+                <div class="body-modal max-h-[60vh] overflow-y-auto pr-1 scroll-nice space-y-1.5"> 
+                    <input type="hidden" id="idEdit" name="id">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input id="titleEdit" name="title" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none" placeholder="Title Undangan" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                        <input id="slugEdit" name="slug" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed" readonly required>
+                        <p class="ml-3 mt-1 text-xs text-gray-500">
+                            Slug dibuat otomatis dari Title Undangan.
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                        <select id="userEdit" name="user" class="ts-remote" data-lookup-url="{{ route('invitations.lookup') }}" data-type="users" data-placeholder="Cari user..." data-dropdown-title="Pilih User">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Template</label>
+                        <select id="templateEdit" name="template" class="ts-remote" data-lookup-url="{{ route('invitations.lookup') }}" data-type="templates" data-placeholder="Cari template...">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="statusAdd" name="status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
+                            <option value="1">Active</option>
+                            <option value="0">Non Active</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-2 flex items-center justify-end gap-2">
+                    <button type="button" id="modalCancelEdit" class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+
+                    <button type="submit" id="formSubmitEdit" class="px-3 py-2 rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition inline-flex items-center gap-2">
+                        <span id="formSubmitTextEdit">Update</span>
+                        <i id="formSpinnerEdit" class="fas fa-circle-notch fa-spin hidden"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -251,6 +314,7 @@
             const url = el.dataset.lookupUrl;
             const type = el.dataset.type;
             const placeholder = el.dataset.placeholder || 'Cari...';
+            const dropdownTitle = el.dataset.dropdownTitle || 'Pilih';
 
             if (el.tomselect) el.tomselect.destroy();
 
@@ -276,9 +340,9 @@
                             const label = escape(data.label ?? '');
                             const meta  = escape(data.meta ?? '');
                             return `
-                            <div>
-                                <div class="font-semibold text-gray-900">${label}</div>
-                                ${meta ? `<div class="ts-meta">${meta}</div>` : ''}
+                            <div class="ts-opt">
+                                <div class="ts-opt-label">${label}</div>
+                                ${meta ? `<div class="ts-opt-meta">${meta}</div>` : ''}
                             </div>
                             `;
                         },
@@ -307,12 +371,59 @@
                             callback();
                         }
                     },
+                    onDropdownOpen: function () {
+                        fitDropdownToViewport(this);
+                    },
+                    onType: function () {
+                        fitDropdownToViewport(this);
+                    },
                 });
+                
+                const reFit = () => fitDropdownToViewport(ts);
+                window.addEventListener('resize', reFit);
+                window.addEventListener('scroll', reFit, true);
+
                 ts.on('type', function (str) {
                     if (str === '') {
                         ts.load('', () => {});
                     }
                 });
+            }
+
+            function fitDropdownToViewport(instance){
+                const dd = instance.dropdown;
+                const content = dd.querySelector('.ts-dropdown-content');
+                const controlRect = instance.control.getBoundingClientRect();
+
+                const viewportTop = 8;
+                const viewportBottom = window.innerHeight - 8;
+
+                const spaceBelow = viewportBottom - controlRect.bottom;
+                const spaceAbove = controlRect.top - viewportTop;
+
+                const fixed = 44 + 56 + 12;
+                const minList = 140;
+                const maxListDefault = 260;
+
+                dd.style.left = controlRect.left + 'px';
+                dd.style.width = controlRect.width + 'px';
+                dd.style.top = '';
+                dd.style.bottom = '';
+
+                const canOpenDown = (spaceBelow - fixed) >= minList;
+                const openUp = !canOpenDown && spaceAbove > spaceBelow;
+
+                if (openUp) {
+                    dd.style.top = (controlRect.top + window.scrollY) + 'px';
+                    dd.style.transform = 'translateY(-100%)';
+                    const maxList = Math.max(minList, Math.min(maxListDefault, spaceAbove - fixed));
+                    if (content) content.style.maxHeight = maxList + 'px';
+                } else {
+                    dd.style.top = (controlRect.bottom + window.scrollY) + 'px';
+                    dd.style.transform = 'translateY(0)';
+                    const maxList = Math.max(minList, Math.min(maxListDefault, spaceBelow - fixed));
+                    if (content) content.style.maxHeight = maxList + 'px';
+                }
             }
 
             function initAllTomSelect() {
@@ -353,9 +464,9 @@
             const modalAdd = document.getElementById('modalAdd');
             const btnCloseModalAdd = document.getElementById('modalCloseAdd');
             const btnCancelModalAdd = document.getElementById('modalCancelAdd');
-            // const modalEdit = document.getElementById('modalEdit');
-            // const btnCloseModalEdit = document.getElementById('modalCloseEdit');
-            // const btnCancelModalEdit = document.getElementById('modalCancelEdit');
+            const modalEdit = document.getElementById('modalEdit');
+            const btnCloseModalEdit = document.getElementById('modalCloseEdit');
+            const btnCancelModalEdit = document.getElementById('modalCancelEdit');
 
             function openModal(m) {
                 m.classList.remove('hidden');
@@ -368,18 +479,21 @@
 
             btnCloseModalAdd.addEventListener('click', () => closeModal(modalAdd));
             btnCancelModalAdd.addEventListener('click', () => closeModal(modalAdd));
-            // btnCloseModalEdit.addEventListener('click', () => closeModal(modalEdit));
-            // btnCancelModalEdit.addEventListener('click', () => closeModal(modalEdit));
+            btnCloseModalEdit.addEventListener('click', () => closeModal(modalEdit));
+            btnCancelModalEdit.addEventListener('click', () => closeModal(modalEdit));
             if (btnAdd) {
                 btnAdd.addEventListener('click', () => {
                     openModal(modalAdd);
                 });
             }
             document.addEventListener('click', (e) => {
+                
                 const btn = e.target.closest('.edit-btn');
                 if (!btn) return;
                 const data = btn.closest('[data-id]');
                 if (!data) return;
+                openModal(modalEdit);
+                
                 const dataset = data.dataset;
                 Object.keys(dataset).forEach((key) => {
                     let value = dataset[key];
@@ -387,13 +501,26 @@
                         value = JSON.parse(value);
                     } catch(error) {}
                     const input = document.querySelector(`#${key}Edit`);
+                    if (!input) return;
                     if (input) {
                         input.value = typeof value === 'object' && value !== null
                             ? JSON.stringify(value, null, 2)
                             : value;
                     }
+
+                    if (input.classList.contains('ts-remote') && input.tomselect) {
+                        const ts = input.tomselect;
+                        ts.clear();
+
+                        if (value && typeof value === 'object') {
+                            ts.addOption(value);
+                            ts.addItem(value.id);
+                        }
+                        return;
+                    }
+                    
+                    input.value = value ?? '';
                 });
-                openModal(modalEdit);
             });
         });
     </script>

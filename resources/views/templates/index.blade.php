@@ -326,16 +326,12 @@
 
                         if (!value || value === 'null') {
                             if (previewText) previewText.textContent = '';
-                            if (previewImg) {
-                                previewImg.src = '';
-                                previewImg.classList.add('hidden');
-                            }
                             return;
                         }
 
                         if (previewText) {
                             previewText.innerHTML = `
-                            File saat ini: <a href="/uploads/${value}" target="_blank" rel="noopener noreferrer"
+                            Current Image: <a href="/uploads/${value}" target="_blank" rel="noopener noreferrer"
                                 class="underline underline-offset-2 hover:opacity-80">
                                 ${value}
                             </a>

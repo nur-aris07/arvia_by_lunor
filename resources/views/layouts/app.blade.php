@@ -155,33 +155,14 @@
             border:1px solid rgba(229,231,235,.9) !important;
             box-shadow: 0 10px 30px rgba(17,24,39,.10) !important;
             overflow:hidden !important;
-        }
-        .ts-dropdown .ts-dropdown-input{
-            border: 1px solid rgba(229,231,235,.9) !important;
-            border-radius: .5rem !important;
-            padding: .45rem .65rem !important;
-            font-size: 14px !important;
-            color: #111827 !important;
-            outline: none !important;
-            box-shadow: none !important;
-        }
-        .ts-dropdown .ts-dropdown-input:focus{
-            border-color: #d1d5db !important;
-            box-shadow: 0 0 0 2px rgba(229,231,235,.9) !important;
-        }
-        .ts-dropdown .ts-dropdown-input::placeholder{
-            color: #9ca3af !important;
-        }
-        .ts-dropdown .dropdown-input{
-            padding: .5rem !important;
-            border-bottom: 1px solid rgba(229,231,235,.7) !important;
+            margin-top: .25rem !important;
         }
         .ts-dropdown .option{
-            padding:.6rem .9rem !important;
+            padding:.65rem 1rem !important;
             font-size: 14px !important;
         }
         .ts-dropdown .option.active{
-            background: rgba(17,24,39,.04) !important;
+                background: rgba(17,24,39,.04) !important;
         }
         .ts-dropdown .option .ts-meta{
             display:block;
@@ -189,63 +170,106 @@
             color: #6b7280;
             margin-top: 2px;
         }
-
-        /* clear button (optional) */
         .ts-control .clear-button{
             opacity:.7;
         }
         .ts-control .clear-button:hover{
             opacity:1;
         }
-
-        /* disabled */
         .ts-wrapper.disabled .ts-control{
             background:#f9fafb !important;
             color:#6b7280 !important;
             cursor:not-allowed !important;
         }
+        .ts-dropdown .ts-dd-header{
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+        }
+        .ts-dropdown .ts-dd-header-row{
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            padding: .75rem 1rem !important;
+            background: #0284c7;
+            color: #fff !important;
+            font-weight: 700;
+        }
+        .ts-dropdown .dropdown-input{
+            position: sticky;
+            top: 44px;
+            z-index: 3;
+            padding: .75rem 1rem .65rem 1rem !important;
+            border-bottom: 1px solid rgba(229,231,235,.7) !important;
+            background: #fff !important;
+        }
+        .ts-dropdown .dropdown-input > input,
+        .ts-dropdown .ts-dropdown-input,
+        .ts-dropdown input,
+        .ts-dropdown .ts-input,
+        .ts-dropdown input[type="text"]{
+            -webkit-appearance: none !important;
+            appearance: none !important;
 
-        /* wrapper search bar di dropdown */
-.ts-dropdown .dropdown-input{
-  padding: .5rem !important;
-  border-bottom: 1px solid rgba(229,231,235,.7) !important;
-  background: #fff !important;
-}
+            width: 100%;
+            border: 1px solid rgba(229,231,235,.9) !important;
+            border-radius: .5rem !important;
+            padding: .55rem .75rem !important;
 
-/* input search di dropdown: Tom Select bisa pakai beberapa class */
-.ts-dropdown input,
-.ts-dropdown .ts-input,
-.ts-dropdown input[type="text"],
-.ts-dropdown .dropdown-input > input {
-  -webkit-appearance: none !important;
-  appearance: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: #fff !important;
 
-  border: 1px solid rgba(229,231,235,.9) !important;
-  border-radius: .5rem !important;
-  padding: .45rem .65rem !important;
-
-  outline: none !important;
-  box-shadow: none !important;
-  background: #fff !important;
-
-  font-size: 14px !important;
-  color: #111827 !important;
-}
-
-/* focus state */
-.ts-dropdown input:focus,
-.ts-dropdown .ts-input:focus,
-.ts-dropdown .dropdown-input > input:focus{
-  border-color: #d1d5db !important;
-  box-shadow: 0 0 0 2px rgba(229,231,235,.9) !important;
-}
-
-/* placeholder */
-.ts-dropdown input::placeholder,
-.ts-dropdown .ts-input::placeholder{
-  color: #9ca3af !important;
-}
-
+            font-size: 14px !important;
+            color: #111827 !important;
+        }
+        .ts-dropdown .dropdown-input > input{
+            margin-top: .25rem !important;
+            width: 100%;
+        }
+        .ts-dropdown .dropdown-input > input:focus,
+        .ts-dropdown .ts-dropdown-input:focus,
+        .ts-dropdown input:focus,
+        .ts-dropdown .ts-input:focus{
+            border-color: #d1d5db !important;
+            box-shadow: 0 0 0 2px rgba(229,231,235,.9) !important;
+        }
+        .ts-dropdown .dropdown-input > input::placeholder,
+        .ts-dropdown input::placeholder,
+        .ts-dropdown .ts-input::placeholder{
+            color: #9ca3af !important;
+        }
+        .ts-dropdown .ts-dropdown-content{
+            max-height: 260px;
+            overflow: auto;
+        }
+        .ts-dropdown .ts-dropdown-content{
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148,163,184,.85) transparent;
+        }
+        .ts-dropdown .ts-dropdown-content::-webkit-scrollbar{ width: 10px; height: 10px; }
+        .ts-dropdown .ts-dropdown-content::-webkit-scrollbar-track{ background: transparent; }
+        .ts-dropdown .ts-dropdown-content::-webkit-scrollbar-thumb{
+            background: rgba(148,163,184,.65);
+            border-radius: 999px;
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+        .ts-dropdown .ts-dropdown-content::-webkit-scrollbar-thumb:hover{
+            background: rgba(100,116,139,.85);
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+        .ts-opt-label{
+            font-weight: 700;
+            color: #111827;
+            font-size: 14px;
+        }
+        .ts-opt-meta{
+            margin-top: 2px;
+            font-size: 12px;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
