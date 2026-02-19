@@ -30,4 +30,8 @@ class Invitation extends Model
         return $this->belongsTo(Template::class);
     }
 
+    public function payments() {
+        return $this->hasMany(Payment::class);
+    }
+
 }

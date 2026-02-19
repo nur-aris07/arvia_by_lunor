@@ -42,7 +42,7 @@
             </button>
         @endif
 
-        <a href="{{ url($invitation->slug) }}" target="_blank"
+        <a href="{{ config('app.invitation_url') . '/' . $invitation->slug }}" target="_blank"
            class="w-9 h-9 inline-flex items-center justify-center rounded-xl
                   bg-gray-50 border border-gray-200/70 text-purple-600
                   hover:bg-purple-50 hover:border-purple-200 transition"

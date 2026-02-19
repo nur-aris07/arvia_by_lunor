@@ -135,5 +135,23 @@ class InvitationsController extends Controller
         return response()->json([], 400);
     }
 
+    public function stats() {
+        $query = Invitation::query();
+        $stats = $query->selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft,
+            SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) as archived,
+            SUM(CASE WHEN payment_status = 'unpaid' THEN 1 ELSE 0 END) as unpaid
+        ")->first();
+
+        return response()->json([
+            'active'   => (int) $stats->active,
+            'draft'    => (int) $stats->draft,
+            'unpaid'   => (int) $stats->unpaid,
+            'archived' => (int) $stats->archived,
+        ]);
+    }
+
     public function temp() {}
 }

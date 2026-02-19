@@ -31,6 +31,10 @@ Route::get('/invitations/add', [InvitationsController::class, 'store'])->name('i
 Route::get('/invitations/update', [InvitationsController::class, 'update'])->name('invitations.update');
 Route::get('/invitations/{id}/delete', [InvitationsController::class, 'destroy'])->name('invitations.delete');
 Route::get('/invitations/lookup', [InvitationsController::class, 'lookup'])->name('invitations.lookup');
+Route::get('/invitations/stats', [InvitationsController::class, 'stats'])->name('invitations.stats');
 Route::get('/invitations/temp', [InvitationsController::class, 'temp'])->name('invitations.temp');
 
 Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
+Route::get('/payments/add', [PaymentsController::class, 'store'])->name('payments.add');
+Route::get('/payments/update', [PaymentsController::class, 'update'])->name('payments.update');
+Route::get('/payments/{id}/delete', [PaymentsController::class, 'destroy'])->name('payments.delete');

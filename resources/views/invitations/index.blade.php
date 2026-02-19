@@ -12,7 +12,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs text-gray-600 mb-1">Undangan Aktif</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['active'] ?? 0 }}</p>
+                    <p id="stat-active" class="text-2xl font-bold text-gray-800">-</p>
                 </div>
                 <i class="fas fa-check-circle text-green-500 text-2xl"></i>
             </div>
@@ -22,7 +22,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs text-gray-600 mb-1">Draft</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['draft'] ?? 0 }}</p>
+                    <p id="stat-draft" class="text-2xl font-bold text-gray-800">-</p>
                 </div>
                 <i class="fas fa-edit text-yellow-500 text-2xl"></i>
             </div>
@@ -32,7 +32,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs text-gray-600 mb-1">Belum Bayar</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['unpaid'] ?? 0 }}</p>
+                    <p id="stat-unpaid" class="text-2xl font-bold text-gray-800">-</p>
                 </div>
                 <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
             </div>
@@ -42,7 +42,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs text-gray-600 mb-1">Arsip</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['archived'] ?? 0 }}</p>
+                    <p id="stat-archived" class="text-2xl font-bold text-gray-800">-</p>
                 </div>
                 <i class="fas fa-archive text-gray-500 text-2xl"></i>
             </div>
@@ -97,7 +97,7 @@
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="w-full max-w-lg rounded-2xl bg-white shadow-xl border border-gray-200/70 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-200/70 flex items-center justify-between">
+            <div class="px-5 py-2 border-b border-gray-200/70 flex items-center justify-between">
                 <div>
                     <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Tambah @yield('context')</h3>
                     <p id="modalSub" class="text-sm text-gray-500">Isi data dengan benar.</p>
@@ -153,7 +153,7 @@
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="w-full max-w-lg rounded-2xl bg-white shadow-xl border border-gray-200/70 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-200/70 flex items-center justify-between">
+            <div class="px-5 py-2 border-b border-gray-200/70 flex items-center justify-between">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900">Edit @yield('context')</h3>
                     <p class="text-sm text-gray-500">Perbarui data dengan benar.</p>
@@ -191,9 +191,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select id="statusAdd" name="status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
-                            <option value="1">Active</option>
-                            <option value="0">Non Active</option>
+                        <select id="statusEdit" name="status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
+                            <option value="draft">Draft</option>
+                            <option value="active">Active</option>
+                            <option value="archived">Archived</option>
                         </select>
                     </div>
                 </div>
@@ -497,6 +498,7 @@
                 const dataset = data.dataset;
                 Object.keys(dataset).forEach((key) => {
                     let value = dataset[key];
+                    console.log(key,value);
                     try {
                         value = JSON.parse(value);
                     } catch(error) {}
@@ -522,6 +524,50 @@
                     input.value = value ?? '';
                 });
             });
+
+            function generateSlug(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[\s\W-]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+            }
+
+            const titleAdd = document.getElementById('titleAdd');
+            const slugAdd = document.getElementById('slugAdd');
+            const titleEdit = document.getElementById('titleEdit');
+            const slugEdit = document.getElementById('slugEdit');
+
+            if (titleAdd && slugAdd) {
+                titleAdd.addEventListener('input', function() {
+                    slugAdd.value = generateSlug(this.value);
+                });
+            }
+            if (titleEdit && slugEdit) {
+                titleEdit.addEventListener('input', function() {
+                    slugEdit.value = generateSlug(this.value);
+                })
+            }
+
+            function loadStats() {
+                $.ajax({
+                    url: "{{ route('invitations.stats') }}",
+                    type: "GET",
+                    dataType: "json",
+                    success: function(res) {
+                        $('#stat-active').text(res.active ?? 0);
+                        $('#stat-draft').text(res.draft ?? 0);
+                        $('#stat-unpaid').text(res.unpaid ?? 0);
+                        $('#stat-archived').text(res.archived ?? 0);
+                    },
+                    error: function (xhr) {
+                        console.error('Gagal mengambil stats:', xhr.responseText);
+                    }
+                });
+            }
+            
+            loadStats();
         });
     </script>
 @endpush
