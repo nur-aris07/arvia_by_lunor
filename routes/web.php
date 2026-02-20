@@ -38,3 +38,5 @@ Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.in
 Route::get('/payments/add', [PaymentsController::class, 'store'])->name('payments.add');
 Route::get('/payments/update', [PaymentsController::class, 'update'])->name('payments.update');
 Route::get('/payments/{id}/delete', [PaymentsController::class, 'destroy'])->name('payments.delete');
+Route::get('/payments/stats', [PaymentsController::class, 'stats'])->name('payments.stats');
+Route::get('/payments/temp', [PaymentsController::class, 'temp'])->name('payments.temp');

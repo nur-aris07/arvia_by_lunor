@@ -66,4 +66,8 @@ class PaymentsController extends Controller
     public function update(Request $request) {}
 
     public function destroy($id) {}
+
+    public function stats() {}
+
+    public function temp() {}
 }

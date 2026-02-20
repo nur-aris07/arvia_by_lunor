@@ -103,7 +103,6 @@ class TemplatesController extends Controller
             'status'      => 'required|boolean',
         ]);
         if ($validator->fails()) {
-            dd($validator->errors()->toArray());
             return back()->withErrors($validator)->with('error', 'Validasi gagal, silakan cek kembali input.')->withInput();
         }
 

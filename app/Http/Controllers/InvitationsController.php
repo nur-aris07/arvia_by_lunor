@@ -6,7 +6,12 @@ use App\Models\Invitation;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Validator;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
+
+use function Symfony\Component\Clock\now;
 
 class InvitationsController extends Controller
 {
@@ -80,11 +85,96 @@ class InvitationsController extends Controller
         return view('invitations.index');
     }
 
-    public function store(Request $request) {}
+    public function store(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'title'    => 'required|string|max:100',
+            'slug'     => 'required|string|max:150',
+            'user'     => 'required|string',
+            'template' => 'required|string'
+        ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->with('error', 'Validasi gagal, silakan cek kembali input.')->withInput();
+        }
 
-    public function update(Request $request) {}
+        $user = User::where('id', Crypt::decryptString($request->user))->first();
+        if (!$user) {
+            return back()->with('error', 'Data User Tidak Ditemukan.');
+        }
 
-    public function destroy($id) {}
+        $template = Template::where('id', Crypt::decryptString($request->template))->first();
+        if (!$template) {
+            return back()->with('error', 'Data Template Tidak Ditemukan.');
+        }
+
+        $invitation = Invitation::create([
+            'user_id'        => $user->id,
+            'template_id'    => $template->id,
+            'title'          => $request->title,
+            'slug'           => $request->slug,
+            'status'         => 'draft',
+            'payment_status' => 'unpaid',
+            'created_at'     => now()
+        ]);
+
+        if ($invitation) {
+            return back()->with('success', 'Berhasil Menambahkan Undangan Baru.');
+        } else {
+            return back()->with('error', 'Gagal Menambahkan Undangan Baru.');
+        }
+    }
+
+    public function update(Request $request) {
+        $validator = Validator::make([
+            'id'       => 'required|string',
+            'title'    => 'required|string|max:100',
+            'slug'     => 'required|string|max:150',
+            'user'     => 'required|string',
+            'template' => 'required|string',
+            'status'   => 'required|string|in:draft,active,archived',
+        ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->with('error', 'Validasi gagal, silakan cek kembali input.')->withInput();
+        }
+
+        $invitation = Invitation::where('id', Crypt::decryptString($request->id))->first();
+        if (!$invitation) {
+            return back()->with('error', 'Data Undangan Tidak Ditemukan.');
+        }
+
+        $user = User::where('id', Crypt::decryptString($request->user))->first();
+        if (!$user) {
+            return back()->with('error', 'Data User Tidak Ditemukan.');
+        }
+
+        $template = Template::where('id', Crypt::decryptString($request->template))->first();
+        if (!$template) {
+            return back()->with('error', 'Data Template Tidak Ditemukan.');
+        }
+
+        $invitation->update([
+            'user_id'     => $user->id,
+            'template_id' => $template->id,
+            'title'       => $request->title,
+            'slug'        => $request->slug,
+            'status'      => $request->status,
+        ]);
+
+        if ($template) {
+            return back()->with('success', 'Berhasil Memperbarui Data Undangan.');
+        } else {
+            return back()->with('error', 'Gagal Memperbarui Data Undangan.');
+        }
+    }
+
+    public function destroy($id) {
+        try {
+            $invitation = Invitation::where('id', Crypt::decryptString($id))->first();
+            $invitation->delete();
+            return back()->with('success', 'Berhasil Menghapus Data Undangan.');
+        } catch(Throwable $e) {
+            return back()->with('error', 'Gagal Menghapus Data Undangan.');
+        }
+    }
 
     public function lookup(Request $request) {
         if (!$request->ajax()) abort(404);
