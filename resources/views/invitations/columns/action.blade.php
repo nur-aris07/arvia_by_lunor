@@ -12,7 +12,7 @@
             class="edit-btn w-9 h-9 inline-flex items-center justify-center rounded-xl
                     bg-gray-50 border border-gray-200/70 text-amber-600
                     hover:bg-amber-50 hover:border-amber-200 transition"
-            data-id="{{ $invitation->id }}"
+            data-id="{{ $invitation->hash_id }}"
             data-user='@json([
                 "id"    => $invitation->user->hash_id,
                 "label" => $invitation->user->name,
@@ -55,7 +55,7 @@
                    bg-gray-50 border border-gray-200/70 text-red-600
                    hover:bg-red-50 hover:border-red-200 transition"
             title="Hapus"
-            data-id="{{ $invitation->id }}">
+            data-id="{{ $invitation->hash_id }}">
             <i class="fas fa-trash-alt text-[14px]"></i>
         </button>
     </div>

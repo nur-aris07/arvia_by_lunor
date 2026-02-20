@@ -40,7 +40,6 @@ class PaymentsController extends Controller
                         ->orderBy('invitations.title', $order)
                         ->select('payments.*');
                 })
-                ->addColumn('user', fn($payment) => view('payments.columns.user', compact('payment'))->render())
                 ->addColumn('method', fn($payment) => view('payments.columns.method', compact('payment'))->render())
                 ->orderColumn('method', fn($q, $order) => $q->orderBy('payment_method', $order))
 
@@ -67,7 +66,43 @@ class PaymentsController extends Controller
 
     public function destroy($id) {}
 
-    public function stats() {}
+    public function stats() {
+        $query = Payment::query();
+        $stats = $query->selectRaw("
+            COUNT(*) as total_transactions,
+            SUM(CASE 
+                WHEN payment_method IS NOT NULL 
+                AND payment_method != '' 
+                THEN amount 
+                ELSE 0 
+            END) as paid_total,
+            SUM(CASE 
+                WHEN payment_method IS NULL 
+                OR payment_method = '' 
+                THEN amount 
+                ELSE 0 
+            END) as unpaid_total,
+            SUM(CASE 
+                WHEN payment_method IS NOT NULL 
+                AND payment_method != '' 
+                THEN 1 
+                ELSE 0 
+            END) as paid_count,
+            SUM(CASE 
+                WHEN payment_method IS NULL 
+                OR payment_method = '' 
+                THEN 1 
+                ELSE 0 
+            END) as unpaid_count
+        ")->first();
+        return response()->json([
+            'paidTotal'     => (int) $stats->paid_total,
+            'unpaidTotal'   => (int) $stats->unpaid_total,
+            'paidCount'     => (int) $stats->paid_count,
+            'unpaidCount'   => (int) $stats->unpaid_count,
+            'totalRevenue'  => (int) $stats->paid_total + (int) $stats->unpaid_total,
+        ]);
+    }
 
     public function temp() {}
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Invitation;
 use App\Models\Template;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
@@ -106,25 +107,20 @@ class InvitationsController extends Controller
             return back()->with('error', 'Data Template Tidak Ditemukan.');
         }
 
-        $invitation = Invitation::create([
-            'user_id'        => $user->id,
-            'template_id'    => $template->id,
-            'title'          => $request->title,
-            'slug'           => $request->slug,
-            'status'         => 'draft',
-            'payment_status' => 'unpaid',
-            'created_at'     => now()
-        ]);
-
-        if ($invitation) {
-            return back()->with('success', 'Berhasil Menambahkan Undangan Baru.');
-        } else {
-            return back()->with('error', 'Gagal Menambahkan Undangan Baru.');
-        }
+        $this->handleDatabase(function() use ($request, $user, $template) {
+            Invitation::create([
+                'user_id'        => $user->id,
+                'template_id'    => $template->id,
+                'title'          => $request->title,
+                'slug'           => $request->slug,
+                'status'         => 'draft',
+                'payment_status' => 'unpaid',
+            ]);
+        },'Berhasil Menambahkan Undangan Baru.');
     }
 
     public function update(Request $request) {
-        $validator = Validator::make([
+        $validator = Validator::make($request->all(), [
             'id'       => 'required|string',
             'title'    => 'required|string|max:100',
             'slug'     => 'required|string|max:150',
@@ -151,19 +147,15 @@ class InvitationsController extends Controller
             return back()->with('error', 'Data Template Tidak Ditemukan.');
         }
 
-        $invitation->update([
-            'user_id'     => $user->id,
-            'template_id' => $template->id,
-            'title'       => $request->title,
-            'slug'        => $request->slug,
-            'status'      => $request->status,
-        ]);
-
-        if ($template) {
-            return back()->with('success', 'Berhasil Memperbarui Data Undangan.');
-        } else {
-            return back()->with('error', 'Gagal Memperbarui Data Undangan.');
-        }
+        $this->handleDatabase(function() use ($invitation, $request, $user, $template) {
+            $invitation->update([
+                'user_id'     => $user->id,
+                'template_id' => $template->id,
+                'title'       => $request->title,
+                'slug'        => $request->slug,
+                'status'      => $request->status,
+            ]);
+        }, 'Berhasil Memperbarui Data Undangan.');
     }
 
     public function destroy($id) {

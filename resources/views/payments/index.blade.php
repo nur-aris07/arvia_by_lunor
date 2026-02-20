@@ -12,8 +12,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Total Terbayar</p>
-                    <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($paidTotal ?? 0, 0, ',', '.') }}</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $paidCount ?? 0 }} transaksi</p>
+                    <p class="text-2xl font-bold text-gray-800">Rp <span id="paidTotal">-</span></p>
+                    <p class="text-xs text-gray-500 mt-1"><span id="paidCount">-</span> transaksi</p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-check-circle text-green-500 text-2xl"></i>
@@ -25,8 +25,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Belum Terbayar</p>
-                    <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($unpaidTotal ?? 0, 0, ',', '.') }}</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $unpaidCount ?? 0 }} transaksi</p>
+                    <p class="text-2xl font-bold text-gray-800">Rp <span id="unpaidTotal">-</span></p>
+                    <p class="text-xs text-gray-500 mt-1"><span id="unpaidCount">-</span> transaksi</p>
                 </div>
                 <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
@@ -38,7 +38,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Total Pendapatan</p>
-                    <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</p>
+                    <p class="text-2xl font-bold text-gray-800">Rp <span id="totalRevenue">-</span></p>
                     <p class="text-xs text-gray-500 mt-1">Keseluruhan</p>
                 </div>
                 <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -52,7 +52,8 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
             <div class="relative flex-1">
-                <input id="search" type="text" placeholder="Cari nama user atau template..." class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none"></i>
+                <input id="search" type="text" placeholder="Cari pembayaran..." class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
             </div>
             <select id="filter-method" class="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
                 <option value="">Semua Method</option>
@@ -71,7 +72,6 @@
                     <tr>
                         <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Invoice</th>
                         <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Undangan</th>
-                        <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
                         <th class="text-left py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Metode</th>
                         <th class="text-right py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Nominal</th>
                         <th class="text-center py-3 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
@@ -154,7 +154,6 @@
                 columns: [
                     { data: 'invoice', name: 'invoice', orderable: true },
                     { data: 'undangan', name: 'undangan', orderable: true },
-                    { data: 'user', name: 'user', orderable: false }, 
                     { data: 'method', name: 'method', orderable: true },
                     { data: 'amount', name: 'amount', orderable: true },
                     { data: 'status', name: 'status', orderable: true },
@@ -195,6 +194,34 @@
             // $('#filter-payment').on('change', function () {
             //     table.draw();
             // });
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            function formatRupiah(angka) {
+                return new Intl.NumberFormat('id-ID').format(angka);
+            }
+    
+            function loadStats() {
+                $.ajax({
+                    url: "{{ route('payments.stats') }}",
+                    type: "GET",
+                    dataType: "json",
+                    success: function(res) {
+    
+                        $('#paidTotal').text(formatRupiah(res.paidTotal ?? 0));
+                        $('#unpaidTotal').text(formatRupiah(res.unpaidTotal ?? 0));
+                        $('#totalRevenue').text(formatRupiah(res.totalRevenue ?? 0));
+    
+                        $('#paidCount').text(res.paidCount ?? 0);
+                        $('#unpaidCount').text(res.unpaidCount ?? 0);
+                    },
+                    error: function (xhr) {
+                        console.error('Gagal mengambil stats:', xhr.responseText);
+                    }
+                });
+            }
+
+            loadStats();
         });
     </script>
 @endpush

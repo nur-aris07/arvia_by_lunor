@@ -76,20 +76,16 @@ class TemplatesController extends Controller
             $previewImage = $imageName;
         }
 
-        $template = Template::create([
-            'name'          => $request->name,
-            'slug'          => $request->slug,
-            'price'         => $request->price,
-            'preview_image' => $previewImage,
-            'description'   => $request->description,
-            'is_active'     => 1,
-        ]);
-
-        if ($template) {
-            return back()->with('success', 'Berhasil Menambahkan Template Baru');
-        } else {
-            return back()->with('error', 'Gagal Menambahkan Template Baru');
-        }
+        $this->handleDatabase(function() use ($request, $previewImage) {
+            Template::create([
+                'name'          => $request->name,
+                'slug'          => $request->slug,
+                'price'         => $request->price,
+                'preview_image' => $previewImage,
+                'description'   => $request->description,
+                'is_active'     => 1,
+            ]);
+        }, 'Berhasil Menambahkan Template Baru.');
     }
 
     public function update(Request $request) {
@@ -123,20 +119,16 @@ class TemplatesController extends Controller
             $previewImage = $imageName;
         }
 
-        $template->update([
-            'name'          => $request->name,
-            'slug'          => $request->slug,
-            'price'         => $request->price,
-            'preview_image' => $previewImage,
-            'description'   => $request->description,
-            'is_active'     => $request->status ,
-        ]);
-
-        if ($template) {
-            return back()->with('success', 'Berhasil Memperbarui Data Template');
-        } else {
-            return back()->with('error', 'Gagal Memperbarui Data Template');
-        }
+        $this->handleDatabase(function() use ($template, $request, $previewImage) {
+            $template->update([
+                'name'          => $request->name,
+                'slug'          => $request->slug,
+                'price'         => $request->price,
+                'preview_image' => $previewImage,
+                'description'   => $request->description,
+                'is_active'     => $request->status ,
+            ]);
+        }, 'Berhasil Memperbarui Data Template.');
     }
 
     public function destroy($id) {

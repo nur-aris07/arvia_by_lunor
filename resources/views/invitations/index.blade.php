@@ -53,6 +53,7 @@
         <div class="flex items-center space-x-4">
             <div class="relative">
                 <input id="search" type="text" placeholder="Cari undangan..." class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
             </div>
             <select id="filter-status" class="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none">
                 <option value="">Semua Status</option>

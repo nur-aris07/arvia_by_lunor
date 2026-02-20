@@ -76,20 +76,16 @@ class UsersController extends Controller
                 ->with('error', 'Validasi gagal, silakan cek kembali input.')
                 ->withInput();
         }
-        
-        $user = User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'phone'     => $request->phone,
-            'password'  => Hash::make($request->password),
-            'role'      => $request->role,
-        ]);
 
-        if ($user) {
-            return back()->with('success', 'Berhasil Menambahkan User Baru');
-        } else {
-            return back()->with('error', 'Gagal Menambahkan User Baru');
-        }
+        $this->handleDatabase(function() use ($request) {
+            User::create([
+                'name'      => $request->name,
+                'email'     => $request->email,
+                'phone'     => $request->phone,
+                'password'  => Hash::make($request->password),
+                'role'      => $request->role,
+            ]);            
+        }, 'Berhasil Menambahkan User Baru.');
     }
 
     public function update(Request $request) {
@@ -133,15 +129,14 @@ class UsersController extends Controller
                 ->withInput();
         }
 
-        $user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'role'  => $request->role,
-        ]);
-
-        return back()->with('success', 'Data user berhasil diupdate.');
-
+        $this->handleDatabase(function() use ($user, $request) {
+            $user->update([
+                'name'  => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'role'  => $request->role,
+            ]);
+        }, 'Data user berhasil diupdate.');
     }
 
     public function destroy($id) {
