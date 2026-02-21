@@ -8,11 +8,14 @@ use App\Http\Controllers\TemplatesController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [DashboardController::class, 'index']);
-Route::get('/login', [AuthController::class, 'login']);
-Route::post('/login/auth', [AuthController::class, 'auth']);
-Route::post('/logout', [AuthController::class, 'logout']);
-Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::get('/', [DashboardController::class, 'index'])->name('index');
+Route::get('/captcha/refresh', function() {
+    return response()->json(['captcha' => captcha_img('math')]);
+})->name('captcha.refresh');
+Route::get('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login/auth', [AuthController::class, 'auth'])->name('login.auth');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::post('/users/add', [UsersController::class, 'store'])->name('users.add');
