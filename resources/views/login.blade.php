@@ -53,7 +53,7 @@
 
             <!-- Card -->
             <div class="bg-white rounded-2xl shadow-2xl border border-gray-200/70 overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-200/70">
+                <div class="px-6 py-3 border-b border-gray-200/70">
                     <h2 class="text-lg font-semibold text-gray-900">Selamat Datang</h2>
                     <p class="text-sm text-gray-500">Silakan login untuk melanjutkan</p>
                 </div>

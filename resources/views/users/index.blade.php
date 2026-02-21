@@ -147,6 +147,41 @@
         </div>
     </div>
 </div>
+<div id="modalReset" class="hidden fixed inset-0 z-[9998]">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white shadow-xl border border-gray-200/70 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-200/70 flex items-center justify-between">
+                <div>
+                    <h3 id="userModalTitle" class="text-lg font-semibold text-gray-900">Reset Password @yield('context')</h3>
+                    <p id="userModalSub" class="text-sm text-gray-500">Isi data dengan benar.</p>
+                </div>
+                <button type="button" id="modalCloseReset" class="h-9 w-9 rounded-xl inline-flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <form id="modalForm" class="px-5 py-4" action="/users/reset-password" method="POST">
+                @csrf
+                <div id="body-modal" class="body-modal max-h-[60vh] overflow-y-auto pr-1 scroll-nice">
+                    <input type="hidden" id="idReset" name="id" value="" />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input id="passwordReset" name="password" type="password" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:ring-4 focus:ring-neutral-200 focus:border-gray-300 outline-none" placeholder="SemuaTeman098#$">
+                    </div>
+                </div>
+                <div class="pt-2 flex items-center justify-end gap-2">
+                    <button type="button" id="modalCancelReset" class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="resetSubmit" class="px-3 py-2 rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition inline-flex items-center gap-2">
+                        <span id="resetSubmitText">Simpan</span>
+                        <i id="resetSpinner" class="fas fa-circle-notch fa-spin hidden"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -267,6 +302,9 @@
             const modalEdit = document.getElementById('modalEdit');
             const btnCloseModalEdit = document.getElementById('modalCloseEdit');
             const btnCancelModalEdit = document.getElementById('modalCancelEdit');
+            const modalReset = document.getElementById('modalReset');
+            const btnCloseModalReset = document.getElementById('modalCloseReset');
+            const btnCancelModalReset = document.getElementById('modalCancelReset');
 
             function openModal(m) {
                 m.classList.remove('hidden');
@@ -280,6 +318,8 @@
             btnCancelModalAdd.addEventListener('click', () => closeModal(modalAdd));
             btnCloseModalEdit.addEventListener('click', () => closeModal(modalEdit));
             btnCancelModalEdit.addEventListener('click', () => closeModal(modalEdit));
+            btnCloseModalReset.addEventListener('click', () => closeModal(modalReset));
+            btnCancelModalReset.addEventListener('click', () => closeModal(modalReset));
             if (btnAdd) {
                 btnAdd.addEventListener('click', () => {
                     openModal(modalAdd);
@@ -304,6 +344,20 @@
                     }
                 });
                 openModal(modalEdit);
+            });
+
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('.reset-password-btn');
+                if (!btn) return;
+                const id = btn.dataset.id;
+                if (!id || id === null || id === undefined || id === '') {
+                    return;
+                }
+                const input = document.getElementById('idReset');
+                if (input) {
+                    input.value = id;
+                }
+                openModal(modalReset);
             });
         });
     </script>

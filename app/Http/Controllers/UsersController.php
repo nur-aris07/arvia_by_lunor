@@ -59,6 +59,29 @@ class UsersController extends Controller
         return view('users.index');
     }
 
+    public function resetPassword(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id'        => 'required|string',
+            'password'  => [
+                'required',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->max(15),
+            ],
+        ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->with('error', 'Validasi gagal, silakan cek kembali input.')->withInput();
+        }
+        
+        $user = User::where('id', Crypt::decryptString($request->id))->first();
+        if (!$user) {
+            return back()->with('error', 'User tidak ditemukan.');
+        }
+        return $this->handleDatabase(function() use ($user, $request) {
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+        }, 'Berhasil Memperbarui Password User.');
+    }
+
     public function store(Request $request) {
         $validator = Validator::make($request->all(), [
             'name'      => ['required', 'string', 'max:100'],
@@ -77,7 +100,7 @@ class UsersController extends Controller
                 ->withInput();
         }
 
-        $this->handleDatabase(function() use ($request) {
+        return $this->handleDatabase(function() use ($request) {
             User::create([
                 'name'      => $request->name,
                 'email'     => $request->email,
@@ -129,7 +152,7 @@ class UsersController extends Controller
                 ->withInput();
         }
 
-        $this->handleDatabase(function() use ($user, $request) {
+        return $this->handleDatabase(function() use ($user, $request) {
             $user->update([
                 'name'  => $request->name,
                 'email' => $request->email,

@@ -107,7 +107,7 @@ class InvitationsController extends Controller
             return back()->with('error', 'Data Template Tidak Ditemukan.');
         }
 
-        $this->handleDatabase(function() use ($request, $user, $template) {
+        return $this->handleDatabase(function() use ($request, $user, $template) {
             Invitation::create([
                 'user_id'        => $user->id,
                 'template_id'    => $template->id,
@@ -147,7 +147,7 @@ class InvitationsController extends Controller
             return back()->with('error', 'Data Template Tidak Ditemukan.');
         }
 
-        $this->handleDatabase(function() use ($invitation, $request, $user, $template) {
+        return $this->handleDatabase(function() use ($invitation, $request, $user, $template) {
             $invitation->update([
                 'user_id'     => $user->id,
                 'template_id' => $template->id,

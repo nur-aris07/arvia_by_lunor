@@ -76,7 +76,7 @@ class TemplatesController extends Controller
             $previewImage = $imageName;
         }
 
-        $this->handleDatabase(function() use ($request, $previewImage) {
+        return $this->handleDatabase(function() use ($request, $previewImage) {
             Template::create([
                 'name'          => $request->name,
                 'slug'          => $request->slug,
@@ -119,7 +119,7 @@ class TemplatesController extends Controller
             $previewImage = $imageName;
         }
 
-        $this->handleDatabase(function() use ($template, $request, $previewImage) {
+        return $this->handleDatabase(function() use ($template, $request, $previewImage) {
             $template->update([
                 'name'          => $request->name,
                 'slug'          => $request->slug,

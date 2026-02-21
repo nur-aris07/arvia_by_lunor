@@ -21,6 +21,7 @@ Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::post('/users/add', [UsersController::class, 'store'])->name('users.add');
 Route::post('/users/update', [UsersController::class, 'update'])->name('users.update');
 Route::delete('/users/{id}/delete', [UsersController::class, 'destroy'])->name('users.delete');
+Route::post('/users/reset-password', [UsersController::class, 'resetPassword'])->name('users.reset-password');
 Route::get('/users/temp', [UsersController::class, 'temp'])->name('users.temp');
 
 Route::get('/templates', [TemplatesController::class, 'index'])->name('templates.index');
